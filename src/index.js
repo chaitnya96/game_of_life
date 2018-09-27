@@ -63,7 +63,7 @@ class Main extends React.Component{
 			generation: 0,
 			gridFull: Array(this.rows).fill().map(() => Array(this.cols).fill(false))
 		}
-		axios.get(`http://127.0.0.1:8000/api/state/`).then(
+		axios.get(`https://game-o-life-api.herokuapp.com/api/state/`).then(
 			res =>{
 				const data=res.data
 				this.setState(
@@ -150,7 +150,7 @@ class Main extends React.Component{
 					// 	"box": g[i][j],
 					// }
 					// console.log(data)
-					axios.post(`http://127.0.0.1:8000/api/state/`, { row:i,column:j,box:g[i][j] })
+					axios.post(`https://game-o-life-api.herokuapp.com/api/state/`, { row:i,column:j,box:g[i][j] })
 					.then(res => {
 						console.log(res);
 						console.log(res.data);
