@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import axios from 'axios';
 
 class Box extends React.Component {
 	selectBox = () => {
@@ -54,25 +55,37 @@ function arrayClone(arr) {
 class Main extends React.Component{
     constructor() {
 		super();
-		this.speed = 3000;
-		this.rows = 10;
-        this.cols = 10;
+		this.speed = 500;
+		this.rows = 3;
+        this.cols = 6;
 		this.state = {
+			data:[],
 			generation: 0,
 			gridFull: Array(this.rows).fill().map(() => Array(this.cols).fill(false))
-        }
-        
+		}
+		axios.get(`http://127.0.0.1:8000/api/state/`).then(
+			res =>{
+				const data=res.data
+				this.setState(
+					{data:data}
+				)
+				console.log(res.data)
+			}
+		)
+		
     }
     selectBox = (row, col) => {
         let gridCopy = arrayClone(this.state.gridFull);
         gridCopy[row][col] = !gridCopy[row][col];
         this.setState({
+			
             gridFull: gridCopy
         });
     }
-
+	get = ()=>{
+        console.log(this.state.data[0])
+	}
     check = () => {
-		this.st=true;
 		let g = this.state.gridFull;
 		let g2 = arrayClone(this.state.gridFull);
 
@@ -125,6 +138,28 @@ class Main extends React.Component{
 	removeInterval = () =>{
 		clearInterval(this.intevalId);
 	}
+
+	retTrue = () =>{
+		let g = this.state.gridFull;
+		for (let i = 0; i < this.rows; i++) {
+			for (let j = 0; j < this.cols; j++) {
+				if(g[i][j]){
+					// const data={
+					// 	"row": i,
+					// 	"column": j,
+					// 	"box": g[i][j],
+					// }
+					// console.log(data)
+					axios.post(`http://127.0.0.1:8000/api/state/`, { row:i,column:j,box:g[i][j] })
+					.then(res => {
+						console.log(res);
+						console.log(res.data);
+					})
+				}
+			}
+		  }
+		  this.get()
+	}
     
     render(){
         return(
@@ -141,8 +176,11 @@ class Main extends React.Component{
                 
                 <button onClick={this.playButton}>check</button>
 				<button onClick={this.removeInterval}>pause</button>
+
+				<button onClick={this.retTrue}>save state</button>
+				<h4>{this.state.generation}</h4>
 				</center>
-                <h2>genration : {this.state.genration}</h2>
+                
             </div>
         );
     }
