@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import axios from 'axios';
+// import $ from 'jquery';
 
 class Box extends React.Component {
 	selectBox = () => {
@@ -63,28 +64,44 @@ class Main extends React.Component{
 			generation: 0,
 			gridFull: Array(this.rows).fill().map(() => Array(this.cols).fill(false))
 		}
-		axios.get(`https://game-o-life-api.herokuapp.com/api/state/`).then(
-			res =>{
-				const data=res.data
-				this.setState(
-					{data:data}
-				)
-				console.log(res.data)
-			}
-		)
+		this.name="pause"
 		
     }
     selectBox = (row, col) => {
         let gridCopy = arrayClone(this.state.gridFull);
         gridCopy[row][col] = !gridCopy[row][col];
         this.setState({
-			
             gridFull: gridCopy
         });
     }
 	get = ()=>{
         console.log(this.state.data[0])
 	}
+
+	loadState =()=>{
+		axios.get(`https://game-o-life-api.herokuapp.com/api/state/`).then(
+			res =>{
+				// const data=res.data
+				// this.setState(
+				// 	{data:data}
+				// )
+				for (let i = 0; i < res.data.length; i++) {
+					console.log(res.data[i].row+'-'+res.data[i].column)
+					let r=res.data[i].row;
+					let c=res.data[i].column
+					let gridCopy = arrayClone(this.state.gridFull);
+					gridCopy[r][c] = !gridCopy[r][c];
+					this.setState({
+						gridFull: gridCopy
+					});
+				}
+				clearInterval(this.intevalId);
+				
+			}
+		)
+		this.name="resume";
+	}
+
     check = () => {
 		let g = this.state.gridFull;
 		let g2 = arrayClone(this.state.gridFull);
@@ -129,6 +146,17 @@ class Main extends React.Component{
 	playButton = () =>{
 		clearInterval(this.intevalId);
 		this.intevalId = setInterval(this.check,this.speed);
+		let g = this.state.gridFull;
+		for (let i = 0; i < this.rows; i++) {
+			for (let j = 0; j < this.cols; j++) {
+				if(g[i][j]){
+					this.name="resume"
+				}
+				else{
+					this.name="pause"
+				}
+			}
+		  }
 	}
 
 	componentDidMount(){
@@ -136,10 +164,17 @@ class Main extends React.Component{
 	}
 
 	removeInterval = () =>{
+		if(this.name==="resume")
+		{
+			this.playButton();
+		}
+		else{
 		clearInterval(this.intevalId);
+		}
+
 	}
 
-	retTrue = () =>{
+	saveState = () =>{
 		let g = this.state.gridFull;
 		for (let i = 0; i < this.rows; i++) {
 			for (let j = 0; j < this.cols; j++) {
@@ -164,9 +199,11 @@ class Main extends React.Component{
     render(){
         return(
             <div><center>
-				<input type="text" placeholder="row"></input><br />
+				{/* <input type="text" placeholder="row"></input><br />
 				<input type="text" placeholder="column"></input><br />
-				<button onClick={this.gridSize}>create grid</button>
+				<button onClick={this.gridSize}>create grid</button> */}
+
+				<h1>Game Of Life</h1>
                 <Grid
 					gridFull={this.state.gridFull}
 					rows={this.rows}
@@ -175,9 +212,11 @@ class Main extends React.Component{
 				/><br />
                 
                 <button onClick={this.playButton}>check</button>
-				<button onClick={this.removeInterval}>pause</button>
+				
+				<button id="btn-rp" onClick={this.removeInterval}>{this.name}</button>
 
-				<button onClick={this.retTrue}>save state</button>
+				<button onClick={this.saveState}>Save State</button>
+				<button onClick={this.loadState}>Load State</button>
 				<h4>{this.state.generation}</h4>
 				</center>
                 
