@@ -64,7 +64,7 @@ class Main extends React.Component{
 			generation: 0,
 			gridFull: Array(this.rows).fill().map(() => Array(this.cols).fill(false))
 		}
-		this.name="pause"
+		this.name="pause";
 		
     }
     selectBox = (row, col) => {
@@ -81,10 +81,6 @@ class Main extends React.Component{
 	loadState =()=>{
 		axios.get(`https://game-o-life-api.herokuapp.com/api/state/`).then(
 			res =>{
-				// const data=res.data
-				// this.setState(
-				// 	{data:data}
-				// )
 				for (let i = 0; i < res.data.length; i++) {
 					console.log(res.data[i].row+'-'+res.data[i].column)
 					let r=res.data[i].row;
@@ -96,10 +92,11 @@ class Main extends React.Component{
 					});
 				}
 				clearInterval(this.intevalId);
-				
+				this.delete();
 			}
 		)
 		this.name="resume";
+
 	}
 
     check = () => {
@@ -143,6 +140,44 @@ class Main extends React.Component{
 
 	}
 
+	delete = ()=>{
+		let g = this.state.gridFull;
+		var d;
+		for (let i = 0; i < this.rows; i++) {
+			for (let j = 0; j < this.cols; j++) {
+				if(g[i][j]){
+					 d=[
+						{
+							"row": i,
+							"column": j,
+							"box": g[i][j],
+						},
+					]
+					// console.log(data)
+					
+				}
+			}
+		  }
+		  axios.delete(`https://game-o-life-api.herokuapp.com/api/delete/`,{data:d} )
+					.then(res => {
+						console.log(res);
+						console.log(res.data);
+					})
+	}
+
+	checkBox() {
+		var checkBox=false;
+		let g = this.state.gridFull;
+		for (let i = 0; i < this.rows; i++) {
+			for (let j = 0; j < this.cols; j++) {
+				if(g[i][j]){
+					checkBox=true;
+				}
+			}
+		}
+		return checkBox;
+	}
+
 	playButton = () =>{
 		clearInterval(this.intevalId);
 		this.intevalId = setInterval(this.check,this.speed);
@@ -157,6 +192,7 @@ class Main extends React.Component{
 				}
 			}
 		  }
+		 
 	}
 
 	componentDidMount(){
@@ -217,6 +253,7 @@ class Main extends React.Component{
 
 				<button onClick={this.saveState}>Save State</button>
 				<button onClick={this.loadState}>Load State</button>
+				{/* <button onClick={this.delete}>Delete All State</button> */}
 				<h4>{this.state.generation}</h4>
 				</center>
                 
