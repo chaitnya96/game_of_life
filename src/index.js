@@ -211,6 +211,7 @@ class Main extends React.Component{
 	}
 
 	saveState = () =>{
+		this.delete();
 		let g = this.state.gridFull;
 		for (let i = 0; i < this.rows; i++) {
 			for (let j = 0; j < this.cols; j++) {
